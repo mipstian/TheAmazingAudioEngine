@@ -72,6 +72,39 @@
     return player;
 }
 
++ (void)audioFilePlayerWithURL:(NSURL*)url
+               audioController:(AEAudioController *)audioController
+                         error:(NSError **)error
+                 loadedInQueue:(NSOperationQueue *)queue
+                    completion:(void(^)(AEAudioFilePlayer *))completionBlock {
+    AEAudioFilePlayer *player = [[[AEAudioFilePlayer alloc] init] autorelease];
+    player->_volume = 1.0;
+    player->_channelIsPlaying = YES;
+    player->_audioDescription = audioController.audioDescription;
+    player.url = url;
+
+    AEAudioFileLoaderOperation *operation = [[AEAudioFileLoaderOperation alloc] initWithFileURL:url targetAudioDescription:player->_audioDescription];
+    
+    operation.completionBlock = ^{
+        if ( operation.error ) {
+            if ( error ) {
+                *error = [[operation.error retain] autorelease];
+            }
+            [operation release];
+            completionBlock(nil);
+            return;
+        }
+
+        player->_audio = operation.bufferList;
+        player->_lengthInFrames = operation.lengthInFrames;
+
+        [operation release];
+        completionBlock(player);
+    };
+
+    [queue addOperation:operation];
+}
+
 - (void)dealloc {
     self.url = nil;
     self.completionBlock = nil;

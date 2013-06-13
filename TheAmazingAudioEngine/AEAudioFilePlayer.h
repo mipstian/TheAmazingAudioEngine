@@ -50,6 +50,22 @@ extern "C" {
  */
 + (id)audioFilePlayerWithURL:(NSURL*)url audioController:(AEAudioController*)audioController error:(NSError**)error;
 
+/*!
+ * Create a new player instance asynchronously
+ *
+ * @param url               URL to the file to load
+ * @param audioController   The audio controller
+ * @param error             If not NULL, the error on output
+ * @param queue             The operation queue to use for sample loading
+ * @param completion        A block to invoke with the player when loading is complete
+ * @return The audio player, ready to be @link AEAudioController::addChannels: added @endlink to the audio controller.
+ */
++ (void)audioFilePlayerWithURL:(NSURL*)url
+               audioController:(AEAudioController *)audioController
+                         error:(NSError **)error
+                 loadedInQueue:(NSOperationQueue *)queue
+                    completion:(void(^)(AEAudioFilePlayer *))completionBlock;
+
 @property (nonatomic, retain, readonly) NSURL *url;         //!< Original media URL
 @property (nonatomic, readonly) NSTimeInterval duration;    //!< Length of audio, in seconds
 @property (nonatomic, assign) NSTimeInterval currentTime;   //!< Current playback position, in seconds
